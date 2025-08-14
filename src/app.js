@@ -25,6 +25,14 @@ app.use("/api/tenants", tenantRoutes);
 //   res.send("SaaS Platform API");
 // });
 
+app.use((req, res, next) => {
+  const host = req.headers.host; // e.g. saraswat.schoolos.com
+  const subdomain = host.split('.')[0]; // 'saraswat'
+  req.subdomain = subdomain;
+  next();
+});
+
+
 app.get('/', (req, res) => {
   res.send(`Hello, ${req.tenant.name}! Your subdomain is ${req.tenant.subdomain}`);
 });
