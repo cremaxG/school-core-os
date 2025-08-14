@@ -21,9 +21,9 @@ app.use(subdomainMiddleware);
 app.use("/api/tenants", tenantRoutes);
 
 // Fallback
-app.get("/", (req, res) => {
-  res.send("SaaS Platform API");
-});
+// app.get("/", (req, res) => {
+//   res.send("SaaS Platform API");
+// });
 
 app.get('/', (req, res) => {
   res.send(`Hello, ${req.tenant.name}! Your subdomain is ${req.tenant.subdomain}`);
