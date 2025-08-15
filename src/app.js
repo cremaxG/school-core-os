@@ -20,17 +20,22 @@ app.use(subdomainMiddleware);
 // Routes
 app.use("/api/tenants", tenantRoutes);
 
-// Fallback
-// app.get("/", (req, res) => {
-//   res.send("SaaS Platform API");
-// });
+const Tenant = require('./models/tenant');
 
-app.use((req, res, next) => {
-  const host = req.headers.host; // e.g. saraswat.schoolos.com
-  const subdomain = host.split('.')[0]; // 'saraswat'
-  req.subdomain = subdomain;
+app.use(async (req, res, next) => {
+  const host = req.headers.host;
+  const subdomain = host.split('.')[0];
+
+  const tenant = await Tenant.findOne({ subdomain });
+
+  if (!tenant) {
+    return res.status(403).json({ error: "Subdomain not recognized" });
+  }
+
+  req.tenant = tenant;
   next();
 });
+
 
 
 app.get('/', (req, res) => {
