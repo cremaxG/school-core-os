@@ -20,20 +20,30 @@ app.use(subdomainMiddleware);
 // Routes
 app.use("/api/tenants", tenantRoutes);
 
-const Tenant = require('./models/tenant');
+const prisma = require('./models/prisma/client');
 
 app.use(async (req, res, next) => {
+  // Allow access to public routes like /api/tenants/register
+  if (req.path === '/api/tenants/register') return next();
+
   const host = req.headers.host;
   const subdomain = host.split('.')[0];
 
-  const tenant = await Tenant.findOne({ subdomain });
+  try {
+    const tenant = await prisma.tenant.findUnique({
+      where: { subdomain },
+    });
 
-  if (!tenant) {
-    return res.status(403).json({ error: "Subdomain not recognized" });
+    if (!tenant) {
+      return res.status(403).json({ error: "Subdomain not recognized" });
+    }
+
+    req.tenant = tenant;
+    next();
+  } catch (err) {
+    console.error('Middleware error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-
-  req.tenant = tenant;
-  next();
 });
 
 

@@ -5,3 +5,17 @@ exports.createTenant = async (name, subdomain) => {
     data: { name, subdomain },
   });
 };
+
+exports.registerTenant = async (name, subdomain) => {
+  const existingTenant = await prisma.tenant.findUnique({
+    where: { subdomain },
+  });
+
+  if (existingTenant) {
+    throw new Error("Subdomain already exists");
+  }
+
+  return await prisma.tenant.create({
+    data: { name, subdomain },
+  });
+};
